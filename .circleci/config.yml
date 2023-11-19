@@ -31,7 +31,7 @@ jobs:
             then
               echo "Successfully created template"
             else
-              coder templates push -y
+              yes | coder templates push
             fi
 
 workflows:
