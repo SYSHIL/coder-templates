@@ -26,8 +26,8 @@ jobs:
       - run:
           name: "Create template"
           command: | 
-            coder templates create -y | true
-            if [ $PIPESTATUS[0] -eq 0 ]
+            yes | coder templates create | true
+            if [ $PIPESTATUS[1] -eq 0 ]
             then
               echo "Successfully created template"
             else
