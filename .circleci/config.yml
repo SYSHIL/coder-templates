@@ -26,7 +26,7 @@ jobs:
       - run:
           name: "Create template"
           command: |   
-            yes | coder templates push
+            coder templates push
 
 
 workflows:
