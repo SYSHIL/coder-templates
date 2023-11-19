@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run:
           name: "Installing coder"
-          command: curl -fsSL https://coder.com/install.sh | sh
+          command: curl -L https://coder.com/install.sh | sh -s -- --version 2.3.3
       - run:
           name: "Log into coder"          
           command: coder login https://h3n6h248294qq.pit-1.try.coder.app --token gWtNi3D3do-7anWg5xqFptLSrpWwF1oWP
