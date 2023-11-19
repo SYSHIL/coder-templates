@@ -27,13 +27,13 @@ jobs:
           name: "Create template"
           command: |
             cd pre-template 
-            coder templates create --yes | true
-            if [ $PIPESTATUS[0] -eq 0 ]
-            then
-              echo "Successfully created template"
-            else
-              coder templates push --yes
-            fi
+            coder templates create --yes || coder templates push --yes
+          # if [ $PIPESTATUS[0] -eq 0 ]
+          # then
+          #   echo "Successfully created template"
+          # else
+          #   coder templates push --yes
+          # fi
             
 
 
