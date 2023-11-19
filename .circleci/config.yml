@@ -26,8 +26,15 @@ jobs:
       - run:
           name: "Create template"
           command: |
-           cd pre-template
-           coder templates push --yes
+            cd pre-template 
+            coder templates create --yes | true
+            if [ $PIPESTATUS[0] -eq 0 ]
+            then
+              echo "Successfully created template"
+            else
+              coder templates push --yes
+            fi
+            
 
 
 workflows:
