@@ -26,12 +26,12 @@ jobs:
       - run:
           name: "Create template"
           command: | 
-          coder templates create
+          coder templates create -y
           if [ $? -eq 0 ]
           then
             echo "Successfully created template"
           else
-            coder templates push
+            coder templates push -y
           fi
 
 workflows:
