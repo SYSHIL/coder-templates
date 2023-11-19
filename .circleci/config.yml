@@ -5,7 +5,7 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  say-hello:
+  template-create:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
@@ -15,12 +15,26 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: "Installing coder"
+          command: curl -fsSL https://coder.com/install.sh | sh
+      - run:
+          name: "Log into coder"          
+          command: coder login --use-token-as-session gWtNi3D3do-7anWg5xqFptLSrpWwF1oWP
+      - run:
+          name: "Enter the directory"
+          command: cd pre-template
+      - run:
+          name: "Create template"
+          command: | 
+          coder templates create
+         
+          if [ $? -eq 0 ]; then
+            echo "Successfully created template"
+          else
+            coder templates push
+          fi
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  template-create-workflow:
     jobs:
-      - say-hello
+      - template-create
