@@ -27,8 +27,8 @@ jobs:
           name: "Create template"
           command: | 
           coder templates create
-         
-          if [ $? -eq 0 ]; then
+          if [ $? -eq 0 ]
+          then
             echo "Successfully created template"
           else
             coder templates push
