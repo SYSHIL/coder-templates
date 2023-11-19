@@ -20,12 +20,14 @@ jobs:
       - run:
           name: "Log into coder"          
           command: coder login https://h3n6h248294qq.pit-1.try.coder.app --token gWtNi3D3do-7anWg5xqFptLSrpWwF1oWP
-      - run:
-          name: "Enter the directory"
-          command: cd pre-template
+      # - run:
+      #     name: "Enter the directory"
+      #     command: cd pre-template
       - run:
           name: "Create template"
-          command: coder templates push
+          command: |
+          cd pre-template
+          coder templates push --yes
 
 
 workflows:
