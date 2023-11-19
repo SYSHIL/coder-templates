@@ -19,7 +19,7 @@ jobs:
           command: curl -fsSL https://coder.com/install.sh | sh
       - run:
           name: "Log into coder"          
-          command: coder login --use-token-as-session gWtNi3D3do-7anWg5xqFptLSrpWwF1oWP
+          command: coder login https://h3n6h248294qq.pit-1.try.coder.app --use-token-as-session gWtNi3D3do-7anWg5xqFptLSrpWwF1oWP
       - run:
           name: "Enter the directory"
           command: cd pre-template
