@@ -8,7 +8,6 @@ terraform {
     }
   }
 }
-
 # Last updated 2023-03-14
 # aws ec2 describe-regions | jq -r '[.Regions[].RegionName] | sort'
 data "coder_parameter" "region" {
@@ -97,9 +96,12 @@ data "coder_parameter" "region" {
     value = "us-west-1"
     icon  = "/emojis/1f1fa-1f1f8.png"
   }
-
+  option {
+    name  = "US West (Oregon)"
+    value = "us-west-2"
+    icon  = "/emojis/1f1fa-1f1f8.png"
+  }
 }
-
 data "coder_parameter" "instance_type" {
   name         = "instance_type"
   display_name = "Instance type"
@@ -131,14 +133,11 @@ data "coder_parameter" "instance_type" {
     value = "t3.2xlarge"
   }
 }
-
 provider "aws" {
   region = data.coder_parameter.region.value
 }
-
 data "coder_workspace" "me" {
 }
-
 data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
@@ -151,7 +150,21 @@ data "aws_ami" "ubuntu" {
   }
   owners = ["099720109477"] # Canonical
 }
-
+data "coder_parameter" "ami_type" {
+  name         = "ami_type"
+  display_name = "AMI"
+  description  = "What ami  should your workspace use?"
+  default      = data.aws_ami.ubuntu.id
+  mutable      = false
+  option {
+    name  = "Default"
+    value = data.aws_ami.ubuntu.id
+  }
+  option {
+    name  = "Custom"
+    value = "ami-0609944f0036f2389"
+  }
+}
 resource "coder_agent" "dev" {
   count                  = data.coder_workspace.me.start_count
   arch                   = "amd64"
@@ -160,12 +173,10 @@ resource "coder_agent" "dev" {
   startup_script_timeout = 180
   startup_script         = <<-EOT
     set -e
-
     # install and start code-server
     curl -fsSL https://code-server.dev/install.sh | sh -s -- --method=standalone --prefix=/tmp/code-server --version 4.11.0
     /tmp/code-server/bin/code-server --auth none --port 13337 >/tmp/code-server.log 2>&1 &
   EOT
-
   metadata {
     key          = "cpu"
     display_name = "CPU Usage"
@@ -188,7 +199,6 @@ resource "coder_agent" "dev" {
     script       = "coder stat disk --path $HOME"
   }
 }
-
 resource "coder_app" "code-server" {
   count        = data.coder_workspace.me.start_count
   agent_id     = coder_agent.dev[0].id
@@ -198,26 +208,22 @@ resource "coder_app" "code-server" {
   icon         = "/icon/code.svg"
   subdomain    = false
   share        = "owner"
-
   healthcheck {
     url       = "http://localhost:13337/healthz"
     interval  = 3
     threshold = 10
   }
 }
-
 locals {
   linux_user = "coder"
   user_data = data.coder_workspace.me.start_count > 0 ? trimspace(<<EOT
 Content-Type: multipart/mixed; boundary="//"
 MIME-Version: 1.0
-
 --//
 Content-Type: text/cloud-config; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="cloud-config.txt"
-
 #cloud-config
 cloud_final_modules:
 - [scripts-user, always]
@@ -226,25 +232,22 @@ users:
 - name: ${local.linux_user}
   sudo: ALL=(ALL) NOPASSWD:ALL
   shell: /bin/bash
-
 --//
 Content-Type: text/x-shellscript; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="userdata.txt"
-
 #!/bin/bash
 sudo -u ${local.linux_user} sh -c '${coder_agent.dev[0].init_script}'
 --//--
 EOT
   ) : ""
 }
-
 resource "aws_instance" "dev" {
-  ami               = data.aws_ami.ubuntu.id
+  # ami               = data.aws_ami.ubuntu.id
+  ami = data.coder_parameter.ami_type.value
   availability_zone = "${data.coder_parameter.region.value}a"
   instance_type     = data.coder_parameter.instance_type.value
-
   user_data = local.user_data
   tags = {
     Name = "coder-${data.coder_workspace.me.owner}-${data.coder_workspace.me.name}"
@@ -252,7 +255,6 @@ resource "aws_instance" "dev" {
     Coder_Provisioned = "true"
   }
 }
-
 resource "coder_metadata" "workspace_info" {
   resource_id = aws_instance.dev.id
   item {
@@ -268,7 +270,6 @@ resource "coder_metadata" "workspace_info" {
     value = "${aws_instance.dev.root_block_device[0].volume_size} GiB"
   }
 }
-
 resource "aws_ec2_instance_state" "dev" {
   instance_id = aws_instance.dev.id
   state       = data.coder_workspace.me.transition == "start" ? "running" : "stopped"
