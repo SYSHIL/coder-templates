@@ -19,24 +19,12 @@ jobs:
           command: curl -L https://coder.com/install.sh | sh -s -- --version 2.3.3
       - run:
           name: "Log into coder"          
-          command: coder login https://h3n6h248294qq.pit-1.try.coder.app --token gWtNi3D3do-7anWg5xqFptLSrpWwF1oWP
-      # - run:
-      #     name: "Enter the directory"
-      #     command: cd pre-template
+          command: coder login ${CODER_URL} --token ${CODER_TOKEN}
       - run:
           name: "Create template"
           command: |
             cd pre-template 
             coder templates create --yes || coder templates push --yes
-          # if [ $PIPESTATUS[0] -eq 0 ]
-          # then
-          #   echo "Successfully created template"
-          # else
-          #   coder templates push --yes
-          # fi
-            
-
-
 workflows:
   template-create-workflow:
     jobs:
