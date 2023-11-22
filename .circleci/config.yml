@@ -15,7 +15,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: coder-installation-<< pipeline.parameters.coder_version >>
+          key: coder-installation-<< pipeline.parameters.coder-version >>
       - run:
           name: "Installing coder"
           command: curl -L https://coder.com/install.sh | sh -s -- --version << pipeline.parameters.coder_version >> --prefix /usr
