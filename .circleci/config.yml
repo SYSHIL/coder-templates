@@ -36,7 +36,7 @@ jobs:
       - run:
           name: "Create template"
           command: |
-            cd << pipeline.parameters.template-tag >>
+            cd << pipeline.parameters.template-tag >>-template
             coder templates create --yes || coder templates push --yes
 
 workflows:
