@@ -17,12 +17,19 @@ jobs:
       - restore_cache:
           key: coder-installation-<< pipeline.parameters.coder-version >>
       - run:
-          name: "Installing coder"
-          command: curl -L https://coder.com/install.sh | sh -s -- --version << pipeline.parameters.coder-version >> --prefix /usr
+          name: "Check if coder exists"
+          command: |
+            if ! command -v coder &> /dev/null; then
+              echo "Coder not found, installing..."
+              curl -L https://coder.com/install.sh | sudo sh -s -- --version << pipeline.parameters.coder-version >> --prefix=$HOME
+              echo "Coder installed successfully"
+            else
+              echo "Coder already exists"
+            fi
       - save_cache:
           key: coder-installation-<< pipeline.parameters.coder-version >>
           paths:
-            -  /usr/bin/coder
+            - $HOME/bin
       - run:
           name: "Log into coder"          
           command: coder login ${CODER_URL} --token ${CODER_TOKEN}
