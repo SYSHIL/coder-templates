@@ -6,7 +6,7 @@ parameters:
     default: "pre"
   coder-version:
     type: string
-    default: "2.3.3"
+    default: "2.3.2"
 
 jobs:
   template-create:
